@@ -10,7 +10,7 @@ If you got here from my [LinkedIn post](https://www.linkedin.com/in/wjvandenberg
 
 | File | What it is |
 |---|---|
-| [`Daily Digest — Setup Guide.md`](./Daily%20Digest%20—%20Setup%20Guide.md) | The guide Claude reads. You attach this to a Cowork chat and Claude walks you through six phases of questions. |
+| [`Daily Digest — Setup Guide.md`](./Daily%20Digest%20—%20Setup%20Guide.md) | The guide Claude reads. You attach this to a Cowork chat and Claude walks you through several phases of questions and build steps. |
 | [`Daily Digest — Quick Start.pdf`](./Daily%20Digest%20—%20Quick%20Start.pdf) | A one-page printable cheat-sheet for humans. Read this in 60 seconds. |
 | [`Daily Digest — LinkedIn Carousel.pdf`](./Daily%20Digest%20—%20LinkedIn%20Carousel.pdf) | The 5-slide LinkedIn carousel for sharing. |
 
@@ -101,17 +101,15 @@ What an MCP connector gives you depends on the vendor's choices, not on what the
 
 ## Iterations + acknowledgements
 
-This skill went through several rounds of real failures before it stabilised:
+This skill went through several rounds of real failures before it stabilised. Three concrete examples:
 
-- A "call back" task that was listed live even though the call had happened the previous day — the closure lived in a placed phone call, not in any message, and the connector can't see placed calls
-- A "confirm delivery channel" task that was listed live even though the answer had arrived by *email* — the original ask was in Teams, the resolution in email, and the skill was only scanning one channel
-- A personal favour task I'd already replied to in sent items, but the skill didn't see my reply
-- A phantom task created by loose summarisation, conflating two unrelated threads into a combined item that didn't actually exist
-- A "waiting on a counterparty for the next document draft" task with the wrong owner — the document was actually being maintained by external counsel, not the named counterparty, and the meeting subject for that day would have made it obvious
+- A "call them back" task listed as still open — the call had already happened the day before, but the tool that reads your inbox and chats can't see phone calls.
+- A task listed as still open when the reply had arrived by email — the original ask was in Teams, the resolution in email, and the skill was only scanning one channel.
+- A phantom task created by loose summarisation, conflating two unrelated threads into a combined item that didn't actually exist.
 
-Each of these failures became a rule in the skill: **cross-channel forward-temporal closure**, **quote-don't-synthesise**, **phone calls are a closure blind spot**, **calendar subjects are workstream signals**. The Setup Guide bakes them in as worked failure examples so future Claude instances have anti-patterns to match against rather than re-discovering them.
+Each failure became a rule in the setup guide, baked in as a worked example so future Claude instances hit the anti-pattern before re-discovering it.
 
-If you build it and find a new failure mode, I'd genuinely like to hear. Open an issue or reach me on [LinkedIn](https://www.linkedin.com/in/wjvandenberg/).
+If you build one and find a new failure mode, I'd genuinely like to hear. Open an issue or reach me on [LinkedIn](https://www.linkedin.com/in/wjvandenberg/).
 
 ---
 
@@ -121,4 +119,4 @@ MIT — do anything you want with the files. Attribution appreciated but not req
 
 ---
 
-*Built with Claude in Cowork by [Wouter van den Berg](https://www.linkedin.com/in/wjvandenberg/). Last updated June 2026.*
+*Built with Claude in Cowork by [Wouter van den Berg](https://www.linkedin.com/in/wjvandenberg/). Last updated July 2026.*
