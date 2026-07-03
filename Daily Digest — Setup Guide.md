@@ -607,7 +607,25 @@ Do not produce chat output. Delivery is the file.
 
 ### B.3: Create the Windows Task Scheduler XML
 
-**⚠️ Critical encoding note** — applies to ALL Task Scheduler XML files below (B.3.a, B.3.b, and Path C):
+**⚠️ Windows encoding gotchas — read both before generating files:**
+
+**(1) Task Scheduler XML must be UTF-16 LE with BOM.** See the detailed note immediately below.
+
+**(2) PowerShell wrapper `.ps1` files must be pure ASCII (or UTF-8 with BOM).** When Claude generates any wrapper `.ps1` file mentioned later in this guide (B.3.b `Open Daily Digest.ps1`, Path C Tier 2 `Open Daily Digest ICS.ps1`), use **plain ASCII characters only** — no em-dashes (`—`), no en-dashes (`–`), no smart quotes (`"..."`), no non-ASCII punctuation. Reason: Windows PowerShell 5.1 (the default on Windows 10/11) reads `.ps1` files as **Windows-1252**, not UTF-8. Any UTF-8 non-ASCII character in a comment or string will render as mojibake (`â€"` for em-dash) and PowerShell crashes with:
+> ```
+> Unexpected token 'silent' in expression or statement.
+> Missing closing ')' in expression.
+> The string is missing the terminator: ".
+> ```
+> before the script's first `Write-Log` call — so the user sees a command window flash and no log file, with no diagnostic. Two safe patterns:
+> - **Preferred:** write the `.ps1` using ASCII characters only. Use plain hyphens `-`, straight double quotes `"`, standard punctuation. Semantically identical, no encoding risk.
+> - **Alternative:** if you must include non-ASCII characters, write the file with a UTF-8 BOM (first three bytes `EF BB BF`). Windows PowerShell 5.1 respects the BOM and reads as UTF-8.
+>
+> If the user hits those specific PowerShell parse errors when running the wrapper, the file was written UTF-8 without BOM. Rewrite with ASCII-only content and the errors disappear.
+
+---
+
+**Detailed Task Scheduler XML encoding note** — applies to ALL Task Scheduler XML files below (B.3.a, B.3.b, and Path C):
 
 > Task Scheduler is **very** picky about file encoding. It requires the XML to be saved as **UTF-16 LE with a BOM** (byte-order mark). If you save it as UTF-8 (the default of most editors and Python's default `open()`), Task Scheduler rejects the import with `ERROR: unable to switch the encoding` at import time — the XML declaration says `encoding="UTF-16"` but the byte stream doesn't match, and Task Scheduler refuses to guess.
 >
