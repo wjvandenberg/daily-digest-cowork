@@ -784,9 +784,14 @@ if (Test-Path $SentinelPath) {
 Start-Process $HtmlPath  # Windows dispatches to the default browser — no need to know which one
 New-Item -Path $SentinelPath -ItemType File -Force | Out-Null
 Write-Log "Opened $HtmlPath — sentinel written."
+
+# Housekeeping - remove sentinel flags from previous days
+Get-ChildItem -Path $env:LOCALAPPDATA -Filter "daily-digest-opened-*.flag" -ErrorAction SilentlyContinue |
+    Where-Object { $_.Name -ne (Split-Path $SentinelPath -Leaf) } |
+    Remove-Item -Force -ErrorAction SilentlyContinue
 ```
 
-**Why the sentinel?** The log-on trigger can fire multiple times a day (log-on, unlock, reconnect after sleep). The sentinel file — one per calendar day — prevents the browser popping up every time the user unlocks their machine. Once opened for the day, subsequent triggers see the sentinel and silent-exit.
+**Why the sentinel?** The log-on trigger can fire multiple times a day (log-on, unlock, reconnect after sleep). The sentinel file — one per calendar day — prevents the browser popping up every time the user unlocks their machine. Once opened for the day, subsequent triggers see the sentinel and silent-exit. The housekeeping step at the end deletes yesterday's (and older) flag files after each successful open, so they don't accumulate in `%LOCALAPPDATA%` indefinitely — without it, the mechanism still works, but leaves one stray flag file per day forever.
 
 **File 2** — save as `Daily Digest Popup.xml` in `[user-chosen-folder]`:
 
