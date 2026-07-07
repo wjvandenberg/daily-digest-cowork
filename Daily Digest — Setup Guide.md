@@ -485,6 +485,32 @@ Free text. Default: 08:00 (or whenever the user typically opens email).
 
 Branch on the user's Q7 answer.
 
+**⚠️ Scheduled-task session isolation — read before configuring Path B or C.**
+
+Cowork's scheduled tasks fire in **isolated sessions** that do NOT automatically inherit folder mounts from interactive Cowork chats. This has a specific practical consequence for Paths B and C, both of which write local files:
+
+- **You** (Claude in the current interactive chat) can write to `C:\Users\[username]\Documents\Daily Digest\` because the folder is connected here.
+- **The scheduled task** running at 08:45 tomorrow fires in its own sandbox and, by default, **cannot** write to that folder. It will fall back to writing to session outputs (invisible to the user's local Task Scheduler and wrapper).
+
+**The fix** — the scheduled task's prompt must call `mcp__cowork__request_cowork_directory` at the start of each run to ensure the folder is mounted. Cowork remembers the granted permission across future task runs, so this is a **one-time interactive approval** — the first fire under the new prompt may pause on a permission dialog for the user; subsequent fires proceed silently.
+
+**Bake this into every Path B and Path C scheduled task prompt** — right at the top, before the digest is produced:
+
+```
+Before writing the [.html / .ics] file, ensure folder access. Target path is
+C:\Users\[username]\Documents\Daily Digest\. Scheduled tasks fire in isolated
+sessions that don't automatically inherit folder mounts. On each run, verify the
+folder is accessible. If not, call mcp__cowork__request_cowork_directory with
+that path. First run under this prompt may require interactive approval; later
+runs should inherit the grant. If the folder still isn't accessible after the
+request (e.g. no user available to approve), fall back to writing to session
+outputs and surface the file via present_files — do not lose the digest.
+```
+
+Without this fix, Path B and C tasks appear to run successfully in the Cowork Scheduled section (green "last run succeeded" state) but the file never lands on the user's disk — a silent failure the user only notices when Outlook doesn't pop up the next morning. Document the diagnostic step in the wrap-up: *"if a morning fire doesn't produce a visible digest, check `%TEMP%\daily-digest-ics.log` first, then check whether the .ics file exists at the operational path — if not, the Cowork task's folder access is likely revoked."*
+
+---
+
 ## Path A — Google Calendar invite
 
 ### A.1: Confirm the user's Google Calendar is connected to Cowork
